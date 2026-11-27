@@ -9,6 +9,7 @@
 #include <freertos/queue.h>
 #include "esp_random.h"
 #include "tasks/espnow_router.h"
+#include "tasks/device_registry.h"
 #include "espnow_config.h"
 #include "espnow_router_config.h"
 

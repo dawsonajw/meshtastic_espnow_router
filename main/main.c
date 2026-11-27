@@ -4,6 +4,7 @@
 #include <driver/i2c_master.h>
 #include <driver/uart.h>
 #include <esp_log.h>
+#include <esp_mac.h>
 #include <esp_system.h>
 #include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
@@ -24,6 +25,7 @@
 #include "tasks/display.h"
 #include "tasks/espnow_router.h"
 #include "tasks/mesh_recv.h"
+#include "tasks/device_registry.h"
 
 #include "espnow_config.h"
 #include "espnow_router_config.h"
@@ -112,9 +114,32 @@ void app_main(void)
 
     wifi_init();
     espnow_init();
+    registry_init();
+    registry_log();
 
     // Create tasks
     if (IS_ROUTER){
+        // Register router device with router
+        endpoint_desc_t ep;
+        memset(&ep, 0, sizeof(endpoint_desc_t));
+        ep.ep_id = 0;
+        ep.ep_type = EP_BINARY_ACTUATOR;
+        snprintf(ep.name, EP_NAME_LEN, "led");
+        ep.scale = 0;
+        ep.unit = UNIT_NONE;
+
+        uint8_t ann_buf[sizeof(announce_msg_t) + sizeof(endpoint_desc_t)] = {0};
+        announce_msg_t *ann = (announce_msg_t *)ann_buf;
+        ann->msg_type = MSG_ANNOUNCE;
+        ann->ep_count = 1;
+        ann->eps[0] = ep;
+
+        uint8_t  mac[ESP_NOW_ETH_ALEN];
+        ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_STA));
+        ESP_ERROR_CHECK(registry_update(mac, ann, 0));
+
+        registry_log();
+
         xTaskCreate(&mesh_recv_task, "mesh_recv", 4096, NULL, 1, NULL);
         xTaskCreate(&mesh_send_task, "mesh_send", 4096, NULL, 1, NULL);
     }
