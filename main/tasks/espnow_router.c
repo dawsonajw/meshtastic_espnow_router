@@ -10,6 +10,7 @@
 #include "esp_random.h"
 #include "tasks/espnow_router.h"
 #include "tasks/device_registry.h"
+#include "board_endpoints.h"
 #include "espnow_config.h"
 #include "espnow_router_config.h"
 
@@ -428,7 +429,13 @@ void espnow_send_task_device(void *pvParameter)
     espnow_send_param_t *send_param = (espnow_send_param_t *)pvParameter;
     uint8_t user_msg[BUF_SIZE];
     
-    // After turning on, broadcast empty data once
+    // After turning on, broadcast announce message once
+    uint8_t ann_buf[sizeof(announce_msg_t) + ANNOUNCE_MAX_EPS * sizeof(endpoint_desc_t)] = {0};
+    announce_msg_t *ann = (announce_msg_t *)ann_buf;
+    size_t out_size = 0;
+    ESP_ERROR_CHECK(board_announce(ann, sizeof(ann_buf), &out_size));
+    send_param->buffer = ann_buf;
+    send_param->len = out_size;
     if (esp_now_send(send_param->dest_mac, send_param->buffer, send_param->len) != ESP_OK) {
         ESP_LOGE("espnow_send_task_device", "Send error");
         vTaskDelete(NULL);

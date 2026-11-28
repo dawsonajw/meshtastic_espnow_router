@@ -82,7 +82,8 @@ typedef enum{
     EP_BINARY_SENSOR = 1,
     EP_ANALOG_SENSOR = 2,
     EP_BINARY_ACTUATOR = 3,
-    EP_LEVEL_ACTUATOR = 4
+    EP_LEVEL_ACTUATOR = 4,
+    EP_TYPE_COUNT,
 } ep_type_t; //Endpoint Types
 
 /* Units for endpoint values. Append new units at the end with the next

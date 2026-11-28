@@ -11,6 +11,7 @@
 #include "tasks/action.h"
 #include "espnow_router_config.h"
 #include "espnow_config.h"
+#include "board_endpoints.h"
 
 extern QueueHandle_t mesh_send_queue;
 extern QueueHandle_t espnow_send_queue;
@@ -31,9 +32,9 @@ void action_task(void *pvParameters)
     uint8_t data[BUF_SIZE];
 
     // Configure uart controlled LED
-    gpio_reset_pin(CONTROLLED_GPIO);
+    //gpio_reset_pin(CONTROLLED_GPIO);
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(CONTROLLED_GPIO, GPIO_MODE_OUTPUT);
+    //gpio_set_direction(CONTROLLED_GPIO, GPIO_MODE_OUTPUT);
     
     char* led_state_str = "LED Off\0";
     char action_ack[BUF_SIZE];
@@ -44,7 +45,7 @@ void action_task(void *pvParameters)
             
             // Turn on LED if textmsg contains LED On
             if (strstr((char*)data, "LED On")){
-                gpio_set_level(CONTROLLED_GPIO, 1);
+                //gpio_set_level(CONTROLLED_GPIO, 1);
                 led_state_str = "LED On\0";
                 action_ack[0] = '\0';
                 strcpy(action_ack, mac_string);
@@ -64,7 +65,7 @@ void action_task(void *pvParameters)
             }
             // Turn off LED if textmsg contains LED On
             else if(strstr((char*)data, "LED Off")){
-                gpio_set_level(CONTROLLED_GPIO, 0);
+                //gpio_set_level(CONTROLLED_GPIO, 0);
                 led_state_str = "LED Off\0";
                 action_ack[0] = '\0';
                 strcpy(action_ack, mac_string);

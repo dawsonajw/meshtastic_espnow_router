@@ -11,7 +11,6 @@
 
 static device_entry_t device_registry[REGISTRY_MAX_DEVICES];
 static SemaphoreHandle_t registry_mutex;
-
 static const char *TAG = "device_registry";
 
 esp_err_t registry_init(void)
@@ -33,8 +32,8 @@ esp_err_t registry_update(const uint8_t mac[ESP_NOW_ETH_ALEN], const announce_ms
 
     /* Verify ep_count is within accepted range */
     uint8_t ep_count = ann_msg->ep_count;
-    ESP_RETURN_ON_FALSE(ep_count <= ANNOUNCE_MAX_EPS, ESP_ERR_INVALID_SIZE, __func__,
-                        "ep_count must be between 0 and %d", ANNOUNCE_MAX_EPS);
+    ESP_RETURN_ON_FALSE(ep_count <= ANNOUNCE_MAX_EPS, ESP_ERR_INVALID_SIZE, TAG,
+                        "%s: ep_count must be between 0 and %d", __func__, ANNOUNCE_MAX_EPS);
 
     esp_err_t ret = ESP_ERR_NO_MEM;
     xSemaphoreTake(registry_mutex, portMAX_DELAY);

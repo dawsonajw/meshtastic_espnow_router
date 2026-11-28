@@ -27,6 +27,7 @@
 #include "tasks/mesh_recv.h"
 #include "tasks/device_registry.h"
 
+#include "board_endpoints.h"
 #include "espnow_config.h"
 #include "espnow_router_config.h"
 
@@ -120,19 +121,10 @@ void app_main(void)
     // Create tasks
     if (IS_ROUTER){
         // Register router device with router
-        endpoint_desc_t ep;
-        memset(&ep, 0, sizeof(endpoint_desc_t));
-        ep.ep_id = 0;
-        ep.ep_type = EP_BINARY_ACTUATOR;
-        snprintf(ep.name, EP_NAME_LEN, "led");
-        ep.scale = 0;
-        ep.unit = UNIT_NONE;
-
-        uint8_t ann_buf[sizeof(announce_msg_t) + sizeof(endpoint_desc_t)] = {0};
+        uint8_t ann_buf[sizeof(announce_msg_t) + ANNOUNCE_MAX_EPS * sizeof(endpoint_desc_t)] = {0};
         announce_msg_t *ann = (announce_msg_t *)ann_buf;
-        ann->msg_type = MSG_ANNOUNCE;
-        ann->ep_count = 1;
-        ann->eps[0] = ep;
+        size_t out_size = 0;
+        ESP_ERROR_CHECK(board_announce(ann, sizeof(ann_buf), &out_size));
 
         uint8_t  mac[ESP_NOW_ETH_ALEN];
         ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_STA));
